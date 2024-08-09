@@ -17,13 +17,19 @@
     <link rel="stylesheet" href="/assets/default/vendors/simplebar/simplebar.css">
     <link rel="stylesheet" href="/assets/default/css/app.css">
     <style>
-    .hidden-content {
-        display: none;
-    }
-
-    .blur-content {
-        filter: blur(10px);
-    }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            font-size: 2em;
+            z-index: 1000;
+        }
     </style>
     @if($isRtl)
         <link rel="stylesheet" href="/assets/default/css/rtl-app.css">
@@ -46,7 +52,7 @@
     @endif
 </head>
 
-<body class="@if($isRtl) rtl @endif sensitive">
+<body class="@if($isRtl) rtl @endif " >
 
 <div id="app" class="{{ (!empty($floatingBar) and $floatingBar->position == 'top' and $floatingBar->fixed) ? 'has-fixed-top-floating-bar' : '' }}">
     @if(!empty($floatingBar) and $floatingBar->position == 'top')
@@ -140,33 +146,11 @@
 </script>
 
 
-<script>
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden') {
-            // Apply a blur effect when the page is hidden
-            document.body.style.filter = 'blur(10px)';
-        } else {
-            // Remove the blur effect when the page is visible again
-            document.body.style.filter = 'none';
-        }
-    });
 
-    document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        // Hide sensitive content or apply a blur effect
-        document.querySelectorAll('.sensitive').forEach(function(element) {
-            element.classList.add('blur-content');
-        });
-    } else {
-        // Show sensitive content or remove the blur effect
-        document.querySelectorAll('.sensitive').forEach(function(element) {
-            element.classList.remove('blur-content');
-        });
-    }
-});
+<script>
+
 
 
 </script>
-
 </body>
 </html>
