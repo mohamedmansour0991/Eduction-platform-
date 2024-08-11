@@ -1,22 +1,22 @@
 <?php $__env->startPush('styles_top'); ?>
     <link rel="stylesheet" href="/assets/default/learning_page/styles.css" />
     <link rel="stylesheet" href="/assets/default/vendors/video/video-js.min.css">
+    <link href="https://vjs.zencdn.net/7.20.2/video-js.css" rel="stylesheet">
+
     <style>
         .video-container {
             position: relative;
             width: 100%;
-            /* height:8600px; */
-            /* Set a fixed height or use JavaScript to set it dynamically */
+            height: 100vh;
             overflow: hidden;
-            /* Ensures the overlay box stays within the container */
         }
 
         .overlay-box {
             position: absolute;
             top: 10%;
             left: 10%;
-            background: rgba(241, 233, 233, 0.5);
-            color: white;
+            background: rgba(74, 71, 71, 0.5);
+            color: rgb(240, 227, 227);
             padding: 10px;
             border-radius: 5px;
             font-size: 20px;
@@ -24,6 +24,48 @@
             pointer-events: none;
             animation: moveBox 10s linear infinite;
         }
+
+        .youtube-header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgb(255, 255, 255);
+            /* Default for mobile */
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        .bottom-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            /* Adjust as needed */
+            background-color: rgb(255, 255, 255);
+            /* Default for mobile */
+            z-index: 200;
+            /* Higher than other z-index values */
+            pointer-events: auto;
+            /* Ensure the panel captures pointer events */
+        }
+
+        /* For PC */
+        @media (min-width: 768px) {
+            .youtube-header-overlay {
+                background-color: rgba(0, 0, 0, 0.8);
+                /* Background color for PC */
+            }
+
+            .bottom-panel {
+                background-color: rgba(0, 0, 0, 0.8);
+                /* Background color for PC */
+            }
+        }
+
+
 
         @keyframes moveBox {
             0% {
@@ -59,47 +101,23 @@
         <?php echo $__env->make('web.default.course.learningPage.components.navbar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
         <div class="d-flex position-relative">
-            <div class="learning-page-content flex-grow-1 bg-info-light p-15">
+            <div id="video-content" class="video-container">
+                <iframe id="youtube-iframe" width="100%" height="98%"
+                    src="<?php echo e($course['files'][0]['file']); ?>?autoplay=1&modestbranding=1&playsinline=1&rel=0&controls=0"
+                    title="YouTube video player" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
 
-                <div id="video-content" class="video-container" style="display: block;">
-                    <div id="overlay" class="overlay-box">
-
-                    </div>
-                    <?php echo $__env->make('web.default.course.learningPage.components.content', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-                </div>
+                <div class="youtube-header-overlay"></div>
+                <div id="overlay" class="overlay-box"></div>
+                <div class="bottom-panel"></div> <!-- Bottom panel added here -->
             </div>
 
             <div class="learning-page-tabs show">
                 <ul class="nav nav-tabs py-15 d-flex align-items-center justify-content-around" id="tabs-tab"
                     role="tablist">
-                    <li class="nav-item">
-                        <a class="position-relative font-14 d-flex align-items-center active" id="content-tab"
-                            data-toggle="tab" href="#content" role="tab" aria-controls="content" aria-selected="true">
-                            <i class="learning-page-tabs-icons mr-5">
-                                <?php echo $__env->make('web.default.panel.includes.sidebar_icons.webinars', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-                            </i>
-                            <span class="learning-page-tabs-link-text"><?php echo e(trans('product.content')); ?></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="position-relative font-14 d-flex align-items-center" id="quizzes-tab" data-toggle="tab"
-                            href="#quizzes" role="tab" aria-controls="quizzes" aria-selected="false">
-                            <i class="learning-page-tabs-icons mr-5">
-                                <?php echo $__env->make('web.default.panel.includes.sidebar_icons.quizzes', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-                            </i>
-                            <span class="learning-page-tabs-link-text"><?php echo e(trans('quiz.quizzes')); ?></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="position-relative font-14 d-flex align-items-center" id="certificates-tab"
-                            data-toggle="tab" href="#certificates" role="tab" aria-controls="certificates"
-                            aria-selected="false">
-                            <i class="learning-page-tabs-icons mr-5">
-                                <?php echo $__env->make('web.default.panel.includes.sidebar_icons.certificate', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-                            </i>
-                            <span class="learning-page-tabs-link-text"><?php echo e(trans('panel.certificates')); ?></span>
-                        </a>
-                    </li>
+                    <!-- Tabs go here -->
                 </ul>
 
                 <div class="tab-content h-100" id="nav-tabContent">
@@ -122,70 +140,9 @@
 
 <?php $__env->startPush('scripts_bottom'); ?>
     <script src="/assets/default/vendors/video/video.min.js"></script>
-    <script src="/assets/default/vendors/video/youtube.min.js"></script>
     <script src="/assets/default/vendors/video/vimeo.js"></script>
-
-    <script>
-        var defaultItemType =
-            '<?php echo e(!empty(request()->get('type')) ? request()->get('type') : (!empty($userLearningLastView) ? $userLearningLastView->item_type : '')); ?>';
-        var defaultItemId =
-            '<?php echo e(!empty(request()->get('item')) ? request()->get('item') : (!empty($userLearningLastView) ? $userLearningLastView->item_id : '')); ?>';
-        var loadFirstContent =
-            <?php echo e(!empty($dontAllowLoadFirstContent) && $dontAllowLoadFirstContent ? 'false' : 'true'); ?>; // allow to load first content when request item is empty
-
-        var appUrl = '<?php echo e(url('')); ?>';
-        var courseUrl = '<?php echo e($course->getUrl()); ?>';
-        var courseNotesStatus = '<?php echo e(!empty(getFeaturesSettings('course_notes_status'))); ?>';
-        var courseNotesShowAttachment = '<?php echo e(!empty(getFeaturesSettings('course_notes_attachment'))); ?>';
-
-        // lang
-        var pleaseWaitForTheContentLang = '<?php echo e(trans('update.please_wait_for_the_content_to_load')); ?>';
-        var downloadTheFileLang = '<?php echo e(trans('update.download_the_file')); ?>';
-        var downloadLang = '<?php echo e(trans('home.download')); ?>';
-        var showHtmlFileLang = '<?php echo e(trans('update.show_html_file')); ?>';
-        var showLang = '<?php echo e(trans('update.show')); ?>';
-        var sessionIsLiveLang = '<?php echo e(trans('update.session_is_live')); ?>';
-        var youCanJoinTheLiveNowLang = '<?php echo e(trans('update.you_can_join_the_live_now')); ?>';
-        var passwordLang = '<?php echo e(trans('auth.password')); ?>';
-        var joinTheClassLang = '<?php echo e(trans('update.join_the_class')); ?>';
-        var coursePageLang = '<?php echo e(trans('update.course_page')); ?>';
-        var quizPageLang = '<?php echo e(trans('update.quiz_page')); ?>';
-        var sessionIsNotStartedYetLang = '<?php echo e(trans('update.session_is_not_started_yet')); ?>';
-        var thisSessionWillBeStartedOnLang = '<?php echo e(trans('update.this_session_will_be_started_on')); ?>';
-        var sessionIsFinishedLang = '<?php echo e(trans('update.session_is_finished')); ?>';
-        var sessionIsFinishedHintLang = '<?php echo e(trans('update.this_session_is_finished_You_cant_join_it')); ?>';
-        var goToTheQuizPageForMoreInformationLang = '<?php echo e(trans('update.go_to_the_quiz_page_for_more_information')); ?>';
-        var downloadCertificateLang = '<?php echo e(trans('update.download_certificate')); ?>';
-        var enjoySharingYourCertificateWithOthersLang = '<?php echo e(trans('update.enjoy_sharing_your_certificate_with_others')); ?>';
-        var attachmentsLang = '<?php echo e(trans('public.attachments')); ?>';
-        var checkAgainLang = '<?php echo e(trans('update.check_again')); ?>';
-        var learningToggleLangSuccess = '<?php echo e(trans('public.course_learning_change_status_success')); ?>';
-        var learningToggleLangError = '<?php echo e(trans('public.course_learning_change_status_error')); ?>';
-        var sequenceContentErrorModalTitle = '<?php echo e(trans('update.sequence_content_error_modal_title')); ?>';
-        var sendAssignmentSuccessLang = '<?php echo e(trans('update.send_assignment_success')); ?>';
-        var saveAssignmentRateSuccessLang = '<?php echo e(trans('update.save_assignment_grade_success')); ?>';
-        var saveSuccessLang = '<?php echo e(trans('webinars.success_store')); ?>';
-        var changesSavedSuccessfullyLang = '<?php echo e(trans('update.changes_saved_successfully')); ?>';
-        var oopsLang = '<?php echo e(trans('update.oops')); ?>';
-        var somethingWentWrongLang = '<?php echo e(trans('update.something_went_wrong')); ?>';
-        var notAccessToastTitleLang = '<?php echo e(trans('public.not_access_toast_lang')); ?>';
-        var notAccessToastMsgLang = '<?php echo e(trans('public.not_access_toast_msg_lang')); ?>';
-        var cantStartQuizToastTitleLang = '<?php echo e(trans('public.request_failed')); ?>';
-        var cantStartQuizToastMsgLang = '<?php echo e(trans('quiz.cant_start_quiz')); ?>';
-        var learningPageEmptyContentTitleLang = '<?php echo e(trans('update.learning_page_empty_content_title')); ?>';
-        var learningPageEmptyContentHintLang = '<?php echo e(trans('update.learning_page_empty_content_hint')); ?>';
-        var expiredQuizLang = '<?php echo e(trans('update.expired_quiz')); ?>';
-        var personalNoteLang = '<?php echo e(trans('update.personal_note')); ?>';
-        var personalNoteHintLang = '<?php echo e(trans('update.this_note_will_be_displayed_for_you_privately')); ?>';
-        var attachmentLang = '<?php echo e(trans('update.attachment')); ?>';
-        var saveNoteLang = '<?php echo e(trans('update.save_note')); ?>';
-        var clearNoteLang = '<?php echo e(trans('update.clear_note')); ?>';
-        var personalNoteStoredSuccessfullyLang = '<?php echo e(trans('update.personal_note_stored_successfully')); ?>';
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-    </script>
-
+    <script src="https://vjs.zencdn.net/7.20.2/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/videojs-youtube@2.8.0/dist/videojs-youtube.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -195,7 +152,25 @@
 
             overlayBox.textContent = fullName + "\n" + mobile;
 
-            // Make the overlay box draggable
+            function keepOverlayInBounds() {
+                var videoContainer = document.querySelector('.video-container');
+                var containerRect = videoContainer.getBoundingClientRect();
+                var overlayRect = overlayBox.getBoundingClientRect();
+
+                if (overlayRect.left < containerRect.left) {
+                    overlayBox.style.left = '10px';
+                }
+                if (overlayRect.top < containerRect.top) {
+                    overlayBox.style.top = '10px';
+                }
+                if (overlayRect.right > containerRect.right) {
+                    overlayBox.style.left = containerRect.width - overlayRect.width - 10 + 'px';
+                }
+                if (overlayRect.bottom > containerRect.bottom) {
+                    overlayBox.style.top = containerRect.height - overlayRect.height - 10 + 'px';
+                }
+            }
+
             overlayBox.onmousedown = function(e) {
                 e.preventDefault();
                 var shiftX = e.clientX - overlayBox.getBoundingClientRect().left;
@@ -204,19 +179,17 @@
                 function moveAt(pageX, pageY) {
                     overlayBox.style.left = pageX - shiftX + 'px';
                     overlayBox.style.top = pageY - shiftY + 'px';
+                    keepOverlayInBounds();
                 }
 
-                // Move the box initially
                 moveAt(e.pageX, e.pageY);
 
                 function onMouseMove(e) {
                     moveAt(e.pageX, e.pageY);
                 }
 
-                // Move the box on mousemove
                 document.addEventListener('mousemove', onMouseMove);
 
-                // Stop moving the box on mouseup
                 overlayBox.onmouseup = function() {
                     document.removeEventListener('mousemove', onMouseMove);
                     overlayBox.onmouseup = null;
@@ -227,14 +200,39 @@
                 return false;
             };
 
-            // Prevent right-click context menu
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
             });
 
-            // Show the overlay box
-            overlayBox.style.display = 'block';
+            // Ensure the bottom panel is visible
+            var bottomPanel = document.querySelector('.bottom-panel');
+            bottomPanel.style.display = 'block';
         });
+
+        // Load the IFrame Player API code asynchronously
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Create an <iframe> (and YouTube player)
+        var player;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-iframe', {
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                document.getElementById('youtube-iframe').style.display = 'none';
+                // Optionally, you can also redirect the user
+                // window.location.href = 'https://your-redirect-url.com';
+            }
+        }
     </script>
 
     <script type="text/javascript" src="/assets/default/vendors/dropins/dropins.js"></script>

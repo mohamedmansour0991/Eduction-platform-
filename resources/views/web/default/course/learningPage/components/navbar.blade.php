@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <div class="d-flex align-items-center mt-5 mt-md-0">
+    <div class=" d-flex align-items-center mt-5 mt-md-0" >
 
         @if(!empty($course->noticeboards_count) and $course->noticeboards_count > 0)
             <a href="{{ $course->getNoticeboardsPageUrl() }}" target="_blank" class="btn learning-page-navbar-btn noticeboard-btn btn-sm border-gray200 mr-10">
