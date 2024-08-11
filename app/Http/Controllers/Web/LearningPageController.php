@@ -15,8 +15,11 @@ use Illuminate\Http\Request;
 
 class LearningPageController extends Controller
 {
-    use LearningPageMixinsTrait, LearningPageAssignmentTrait, LearningPageItemInfoTrait,
-        LearningPageNoticeboardsTrait, LearningPageForumTrait;
+    use LearningPageMixinsTrait,
+        LearningPageAssignmentTrait,
+        LearningPageItemInfoTrait,
+        LearningPageNoticeboardsTrait,
+        LearningPageForumTrait;
 
     public function index(Request $request, $slug)
     {
@@ -85,7 +88,7 @@ class LearningPageController extends Controller
             ->where('user_id', $user->id)
             ->where('webinar_id', $course->id)
             ->first();
-
+        // return $data ;
         return view('web.default.course.learningPage.index', $data);
     }
 }

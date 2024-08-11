@@ -1,49 +1,101 @@
-@extends('web.default.layouts.app',['appFooter' => false, 'appHeader' => false])
+@extends('web.default.layouts.app', ['appFooter' => false, 'appHeader' => false])
 
 @push('styles_top')
-    <link rel="stylesheet" href="/assets/default/learning_page/styles.css"/>
+    <link rel="stylesheet" href="/assets/default/learning_page/styles.css" />
     <link rel="stylesheet" href="/assets/default/vendors/video/video-js.min.css">
+    <style>
+        .video-container {
+            position: relative;
+            width: 100%;
+            /* height:8600px; */
+            /* Set a fixed height or use JavaScript to set it dynamically */
+            overflow: hidden;
+            /* Ensures the overlay box stays within the container */
+        }
+
+        .overlay-box {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            background: rgba(241, 233, 233, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 20px;
+            z-index: 100;
+            pointer-events: none;
+            animation: moveBox 10s linear infinite;
+        }
+
+        @keyframes moveBox {
+            0% {
+                top: 5%;
+                left: 5%;
+            }
+
+            25% {
+                top: 5%;
+                left: calc(100% - 15%);
+            }
+
+            50% {
+                top: calc(100% - 15%);
+                left: calc(100% - 15%);
+            }
+
+            75% {
+                top: calc(100% - 15%);
+                left: 5%;
+            }
+
+            100% {
+                top: 5%;
+                left: 5%;
+            }
+        }
+    </style>
 @endpush
 
 @section('content')
-
     <div class="learning-page">
-
         @include('web.default.course.learningPage.components.navbar')
 
         <div class="d-flex position-relative">
             <div class="learning-page-content flex-grow-1 bg-info-light p-15">
-                @include('web.default.course.learningPage.components.content')
+
+                <div id="video-content" class="video-container" style="display: block;">
+                    <div id="overlay" class="overlay-box">
+
+                    </div>
+                    @include('web.default.course.learningPage.components.content')
+                </div>
             </div>
 
             <div class="learning-page-tabs show">
-                <ul class="nav nav-tabs py-15 d-flex align-items-center justify-content-around" id="tabs-tab" role="tablist">
+                <ul class="nav nav-tabs py-15 d-flex align-items-center justify-content-around" id="tabs-tab"
+                    role="tablist">
                     <li class="nav-item">
                         <a class="position-relative font-14 d-flex align-items-center active" id="content-tab"
-                           data-toggle="tab" href="#content" role="tab" aria-controls="content"
-                           aria-selected="true">
+                            data-toggle="tab" href="#content" role="tab" aria-controls="content" aria-selected="true">
                             <i class="learning-page-tabs-icons mr-5">
                                 @include('web.default.panel.includes.sidebar_icons.webinars')
                             </i>
                             <span class="learning-page-tabs-link-text">{{ trans('product.content') }}</span>
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a class="position-relative font-14 d-flex align-items-center" id="quizzes-tab" data-toggle="tab"
-                           href="#quizzes" role="tab" aria-controls="quizzes"
-                           aria-selected="false">
+                            href="#quizzes" role="tab" aria-controls="quizzes" aria-selected="false">
                             <i class="learning-page-tabs-icons mr-5">
                                 @include('web.default.panel.includes.sidebar_icons.quizzes')
                             </i>
                             <span class="learning-page-tabs-link-text">{{ trans('quiz.quizzes') }}</span>
                         </a>
                     </li>
-
                     <li class="nav-item">
-                        <a class="position-relative font-14 d-flex align-items-center" id="certificates-tab" data-toggle="tab"
-                           href="#certificates" role="tab" aria-controls="certificates"
-                           aria-selected="false">
+                        <a class="position-relative font-14 d-flex align-items-center" id="certificates-tab"
+                            data-toggle="tab" href="#certificates" role="tab" aria-controls="certificates"
+                            aria-selected="false">
                             <i class="learning-page-tabs-icons mr-5">
                                 @include('web.default.panel.includes.sidebar_icons.certificate')
                             </i>
@@ -54,17 +106,14 @@
 
                 <div class="tab-content h-100" id="nav-tabContent">
                     <div class="pb-20 tab-pane fade show active h-100" id="content" role="tabpanel"
-                         aria-labelledby="content-tab">
+                        aria-labelledby="content-tab">
                         @include('web.default.course.learningPage.components.content_tab.index')
                     </div>
-
-                    <div class="pb-20 tab-pane fade  h-100" id="quizzes" role="tabpanel"
-                         aria-labelledby="quizzes-tab">
+                    <div class="pb-20 tab-pane fade h-100" id="quizzes" role="tabpanel" aria-labelledby="quizzes-tab">
                         @include('web.default.course.learningPage.components.quiz_tab.index')
                     </div>
-
-                    <div class="pb-20 tab-pane fade  h-100" id="certificates" role="tabpanel"
-                         aria-labelledby="certificates-tab">
+                    <div class="pb-20 tab-pane fade h-100" id="certificates" role="tabpanel"
+                        aria-labelledby="certificates-tab">
                         @include('web.default.course.learningPage.components.certificate_tab.index')
                     </div>
                 </div>
@@ -79,9 +128,12 @@
     <script src="/assets/default/vendors/video/vimeo.js"></script>
 
     <script>
-        var defaultItemType = '{{ !empty(request()->get('type')) ? request()->get('type') : (!empty($userLearningLastView) ? $userLearningLastView->item_type : '') }}'
-        var defaultItemId = '{{ !empty(request()->get('item')) ? request()->get('item') : (!empty($userLearningLastView) ? $userLearningLastView->item_id : '') }}'
-        var loadFirstContent = {{ (!empty($dontAllowLoadFirstContent) and $dontAllowLoadFirstContent) ? 'false' : 'true' }}; // allow to load first content when request item is empty
+        var defaultItemType =
+            '{{ !empty(request()->get('type')) ? request()->get('type') : (!empty($userLearningLastView) ? $userLearningLastView->item_type : '') }}';
+        var defaultItemId =
+            '{{ !empty(request()->get('item')) ? request()->get('item') : (!empty($userLearningLastView) ? $userLearningLastView->item_id : '') }}';
+        var loadFirstContent =
+            {{ !empty($dontAllowLoadFirstContent) && $dontAllowLoadFirstContent ? 'false' : 'true' }}; // allow to load first content when request item is empty
 
         var appUrl = '{{ url('') }}';
         var courseUrl = '{{ $course->getUrl() }}';
@@ -131,14 +183,68 @@
         var saveNoteLang = '{{ trans('update.save_note') }}';
         var clearNoteLang = '{{ trans('update.clear_note') }}';
         var personalNoteStoredSuccessfullyLang = '{{ trans('update.personal_note_stored_successfully') }}';
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
     </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var overlayBox = document.getElementById('overlay');
+            var fullName = '{{ $user->full_name }}';
+            var mobile = '{{ $user->mobile }}';
+
+            overlayBox.textContent = fullName + "\n" + mobile;
+
+            // Make the overlay box draggable
+            overlayBox.onmousedown = function(e) {
+                e.preventDefault();
+                var shiftX = e.clientX - overlayBox.getBoundingClientRect().left;
+                var shiftY = e.clientY - overlayBox.getBoundingClientRect().top;
+
+                function moveAt(pageX, pageY) {
+                    overlayBox.style.left = pageX - shiftX + 'px';
+                    overlayBox.style.top = pageY - shiftY + 'px';
+                }
+
+                // Move the box initially
+                moveAt(e.pageX, e.pageY);
+
+                function onMouseMove(e) {
+                    moveAt(e.pageX, e.pageY);
+                }
+
+                // Move the box on mousemove
+                document.addEventListener('mousemove', onMouseMove);
+
+                // Stop moving the box on mouseup
+                overlayBox.onmouseup = function() {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    overlayBox.onmouseup = null;
+                };
+            };
+
+            overlayBox.ondragstart = function() {
+                return false;
+            };
+
+            // Prevent right-click context menu
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+
+            // Show the overlay box
+            overlayBox.style.display = 'block';
+        });
+    </script>
+
     <script type="text/javascript" src="/assets/default/vendors/dropins/dropins.js"></script>
     <script src="/vendor/laravel-filemanager/js/stand-alone-button.js"></script>
-
     <script src="/assets/default/js/parts/video_player_helpers.min.js"></script>
     <script src="/assets/learning_page/scripts.min.js"></script>
 
-    @if((!empty($isForumPage) and $isForumPage) or (!empty($isForumAnswersPage) and $isForumAnswersPage))
+    @if ((!empty($isForumPage) && $isForumPage) || (!empty($isForumAnswersPage) && $isForumAnswersPage))
         <script src="/assets/learning_page/forum.min.js"></script>
     @endif
 @endpush
